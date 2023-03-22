@@ -1,25 +1,57 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
 
-function App() {
+function WhoisSearch() {
+  const [domainName, setDomainName] = useState('');
+  const [whoisData, setWhoisData] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `https://otx.alienvault.com/otxapi/indicator/domain/whois/${domainName}`
+      );
+      const data = await response.json();
+      setWhoisData(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <div>
+    <form onSubmit={handleSubmit}>
+      <label>
+        Enter a domain name:
+        <input
+          type="text"
+          value={domainName}
+          onChange={(e) => setDomainName(e.target.value)}
+        />
+      </label>
+      <button type="submit">Search</button>
+    </form>
+    {whoisData && (
+      <table>
+        <thead>
+          <tr>
+            <th>Record</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(whoisData).map(([key, value]) => (
+            <tr key={key}>
+              <td>{key}</td>
+              <td>{value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
   );
 }
 
-export default App;
+export default WhoisSearch;
+
+
